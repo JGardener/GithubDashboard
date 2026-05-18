@@ -190,6 +190,65 @@ test('loading state: column 1 shows loading indicator while fetch is pending', (
   expect(screen.queryByText('torvalds')).not.toBeInTheDocument()
 })
 
+test('error state: 404 for user1 does not affect column 2', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((url: string) => {
+      if (url.includes('ghost')) {
+        return Promise.resolve({ status: 404, ok: false, json: () => Promise.resolve({}), headers: { get: () => null } })
+      }
+      if (url.includes('/repos')) {
+        return Promise.resolve({ status: 200, ok: true, json: () => Promise.resolve([]), headers: { get: () => null } })
+      }
+      return Promise.resolve({
+        status: 200, ok: true,
+        json: () => Promise.resolve({ login: 'torvalds', name: 'Linus Torvalds', avatar_url: 'https://avatars.githubusercontent.com/u/1', bio: null, followers: 236000, following: 0, public_repos: 8, created_at: '2011-09-03T15:26:22Z' }),
+        headers: { get: () => null },
+      })
+    }),
+  )
+
+  renderAt('/compare?user1=ghost&user2=torvalds')
+
+  await screen.findByText(/not found/i)
+  expect(await screen.findByText('torvalds')).toBeInTheDocument()
+})
+
+test('error state: 404 for user1 renders not-found error in column 1', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue({
+      status: 404,
+      ok: false,
+      json: () => Promise.resolve({}),
+      headers: { get: () => null },
+    }),
+  )
+
+  renderAt('/compare?user1=ghost')
+
+  const errorMsg = await screen.findByText(/not found/i)
+  expect(errorMsg.closest('[data-testid="profile-column-1"]')).not.toBeNull()
+})
+
+test('error state: 403 renders global rate-limit banner with reset time', async () => {
+  const resetUnix = 1700000000
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockResolvedValue({
+      status: 403,
+      ok: false,
+      json: () => Promise.resolve({}),
+      headers: { get: (key: string) => (key === 'X-RateLimit-Reset' ? String(resetUnix) : null) },
+    }),
+  )
+
+  renderAt('/compare?user1=torvalds')
+
+  expect(await screen.findByRole('alert')).toBeInTheDocument()
+  expect(screen.getByRole('alert').textContent).toMatch(/resets at \d{1,2}:\d{2}/i)
+})
+
 test('Full state pre-fills both inputs and shows two profile column areas', () => {
   renderAt('/compare?user1=torvalds&user2=gaearon')
 

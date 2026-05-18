@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQueries } from '@tanstack/react-query'
-import { fetchProfile, fetchRepos } from '@/lib/github'
+import { fetchProfile, fetchRepos, RateLimitError, NotFoundError } from '@/lib/github'
 import { ProfileColumn } from '@/components/ProfileColumn'
 
 export function ComparePage() {
@@ -38,8 +38,24 @@ export function ComparePage() {
   const hasUser1 = Boolean(user1Param)
   const hasUser2 = Boolean(user2Param)
 
+  const user1NotFound = [profile1Query.error, repos1Query.error].some((e) => e instanceof NotFoundError)
+  const user2NotFound = [profile2Query.error, repos2Query.error].some((e) => e instanceof NotFoundError)
+
+  const rateLimitError = [profile1Query, repos1Query, profile2Query, repos2Query]
+    .map((q) => q.error)
+    .find((e): e is RateLimitError => e instanceof RateLimitError)
+
+  function formatResetTime(date: Date) {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  }
+
   return (
     <main data-testid="compare-page">
+      {rateLimitError && (
+        <p role="alert" className="bg-destructive/10 border-destructive border p-3 text-sm">
+          GitHub rate limit reached. Resets at {formatResetTime(rateLimitError.resetAt)}.
+        </p>
+      )}
       <div className="flex flex-col gap-4 p-4 md:flex-row">
         <div className="flex-1">
           <input
@@ -54,7 +70,9 @@ export function ComparePage() {
           {(hasUser1 || hasUser2) && (
             <div data-testid="profile-column-1" className="mt-4">
               {hasUser1 ? (
-                profile1Query.data && repos1Query.data ? (
+                user1NotFound ? (
+                  <p>Username not found.</p>
+                ) : profile1Query.data && repos1Query.data ? (
                   <ProfileColumn
                     profile={profile1Query.data}
                     repos={repos1Query.data}
@@ -83,7 +101,9 @@ export function ComparePage() {
           {(hasUser1 || hasUser2) && (
             <div data-testid="profile-column-2" className="mt-4">
               {hasUser2 ? (
-                profile2Query.data && repos2Query.data ? (
+                user2NotFound ? (
+                  <p>Username not found.</p>
+                ) : profile2Query.data && repos2Query.data ? (
                   <ProfileColumn
                     profile={profile2Query.data}
                     repos={repos2Query.data}
