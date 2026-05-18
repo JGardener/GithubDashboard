@@ -61,7 +61,7 @@ export function ComparePage() {
                     compareWith={profile2Query.data ?? undefined}
                   />
                 ) : (
-                  <p>Loading…</p>
+                  <p role="status" aria-label="Loading">Loading…</p>
                 )
               ) : (
                 <p>Enter a second username to compare</p>
@@ -90,7 +90,7 @@ export function ComparePage() {
                     compareWith={profile1Query.data ?? undefined}
                   />
                 ) : (
-                  <p>Loading…</p>
+                  <p role="status" aria-label="Loading">Loading…</p>
                 )
               ) : (
                 <p>Enter a second username to compare</p>

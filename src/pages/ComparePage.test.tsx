@@ -157,6 +157,39 @@ test('Full state: both columns render repos and language distribution strip', as
   expect(strips).toHaveLength(2)
 })
 
+test('loading state: resolved column shows data while other column still shows loading', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((url: string) => {
+      if (url.includes('torvalds')) {
+        if (url.includes('/repos')) {
+          return Promise.resolve({ status: 200, ok: true, json: () => Promise.resolve([]) })
+        }
+        return Promise.resolve({
+          status: 200, ok: true,
+          json: () => Promise.resolve({ login: 'torvalds', name: 'Linus Torvalds', avatar_url: 'https://avatars.githubusercontent.com/u/1', bio: null, followers: 236000, following: 0, public_repos: 8, created_at: '2011-09-03T15:26:22Z' }),
+        })
+      }
+      // gaearon's fetch never resolves — stays loading
+      return new Promise(() => {})
+    }),
+  )
+
+  renderAt('/compare?user1=torvalds&user2=gaearon')
+
+  expect(await screen.findByText('torvalds')).toBeInTheDocument()
+  expect(screen.getByRole('status', { name: /loading/i })).toBeInTheDocument()
+})
+
+test('loading state: column 1 shows loading indicator while fetch is pending', () => {
+  vi.stubGlobal('fetch', vi.fn().mockReturnValue(new Promise(() => {})))
+
+  renderAt('/compare?user1=torvalds')
+
+  expect(screen.getByRole('status', { name: /loading/i })).toBeInTheDocument()
+  expect(screen.queryByText('torvalds')).not.toBeInTheDocument()
+})
+
 test('Full state pre-fills both inputs and shows two profile column areas', () => {
   renderAt('/compare?user1=torvalds&user2=gaearon')
 
