@@ -126,6 +126,37 @@ test('Both params: resolved profile data appears in both columns', async () => {
   expect(await screen.findByText('gaearon')).toBeInTheDocument()
 })
 
+test('Full state: both columns render repos and language distribution strip', async () => {
+  const mockRepos = [
+    { name: 'linux', stargazers_count: 180000, forks_count: 50000, language: 'C', description: 'The kernel' },
+  ]
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((url: string) => {
+      if (url.includes('/repos')) {
+        return Promise.resolve({ status: 200, ok: true, json: () => Promise.resolve(mockRepos) })
+      }
+      const profileMatch = url.match(/\/users\/([^/]+)$/)
+      const profiles: Record<string, object> = {
+        torvalds: { login: 'torvalds', name: 'Linus Torvalds', avatar_url: 'https://avatars.githubusercontent.com/u/1', bio: null, followers: 236000, following: 0, public_repos: 8, created_at: '2011-09-03T15:26:22Z' },
+        gaearon: { login: 'gaearon', name: 'Dan Abramov', avatar_url: 'https://avatars.githubusercontent.com/u/810438', bio: null, followers: 87000, following: 171, public_repos: 263, created_at: '2011-07-11T17:55:13Z' },
+      }
+      if (profileMatch) {
+        return Promise.resolve({ status: 200, ok: true, json: () => Promise.resolve(profiles[profileMatch[1]] ?? {}) })
+      }
+      return Promise.resolve({ status: 404, ok: false, json: () => Promise.resolve({}) })
+    }),
+  )
+
+  renderAt('/compare?user1=torvalds&user2=gaearon')
+
+  // both columns render repos
+  expect(await screen.findAllByText('linux')).toHaveLength(2)
+  // both columns render language strip
+  const strips = await screen.findAllByTestId('language-strip')
+  expect(strips).toHaveLength(2)
+})
+
 test('Full state pre-fills both inputs and shows two profile column areas', () => {
   renderAt('/compare?user1=torvalds&user2=gaearon')
 
