@@ -2,7 +2,28 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { vi, afterEach } from 'vitest'
 import { ComparePage } from './ComparePage'
+
+function mockGitHub(profiles: Record<string, object>) {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((url: string) => {
+      const reposMatch = url.match(/\/users\/([^/]+)\/repos/)
+      if (reposMatch) {
+        return Promise.resolve({ status: 200, ok: true, json: () => Promise.resolve([]) })
+      }
+      const profileMatch = url.match(/\/users\/([^/]+)$/)
+      if (profileMatch) {
+        const data = profiles[profileMatch[1]] ?? {}
+        return Promise.resolve({ status: 200, ok: true, json: () => Promise.resolve(data) })
+      }
+      return Promise.resolve({ status: 404, ok: false, json: () => Promise.resolve({}) })
+    }),
+  )
+}
+
+afterEach(() => vi.unstubAllGlobals())
 
 function renderAt(url: string) {
   const queryClient = new QueryClient({
@@ -53,6 +74,53 @@ test('pressing Enter with empty inputs does not change state', async () => {
 
   expect(screen.queryByText('Enter a second username to compare')).not.toBeInTheDocument()
   expect(screen.getAllByRole('textbox')).toHaveLength(2)
+})
+
+test('Single param: resolved profile data appears in column 1', async () => {
+  mockGitHub({
+    torvalds: {
+      login: 'torvalds',
+      avatar_url: 'https://avatars.githubusercontent.com/u/1',
+      bio: null,
+      followers: 236000,
+      following: 0,
+      public_repos: 8,
+      created_at: '2011-09-03T15:26:22Z',
+    },
+  })
+
+  renderAt('/compare?user1=torvalds')
+
+  expect(await screen.findByText('torvalds')).toBeInTheDocument()
+  expect(await screen.findByText(/236000 followers/)).toBeInTheDocument()
+})
+
+test('Both params: resolved profile data appears in both columns', async () => {
+  mockGitHub({
+    torvalds: {
+      login: 'torvalds',
+      avatar_url: 'https://avatars.githubusercontent.com/u/1',
+      bio: null,
+      followers: 236000,
+      following: 0,
+      public_repos: 8,
+      created_at: '2011-09-03T15:26:22Z',
+    },
+    gaearon: {
+      login: 'gaearon',
+      avatar_url: 'https://avatars.githubusercontent.com/u/810438',
+      bio: null,
+      followers: 87000,
+      following: 171,
+      public_repos: 263,
+      created_at: '2011-07-11T17:55:13Z',
+    },
+  })
+
+  renderAt('/compare?user1=torvalds&user2=gaearon')
+
+  expect(await screen.findByText('torvalds')).toBeInTheDocument()
+  expect(await screen.findByText('gaearon')).toBeInTheDocument()
 })
 
 test('Full state pre-fills both inputs and shows two profile column areas', () => {

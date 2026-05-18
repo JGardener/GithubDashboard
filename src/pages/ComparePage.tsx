@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useQueries } from '@tanstack/react-query'
+import { fetchProfile, fetchRepos } from '@/lib/github'
+import { ProfileColumn } from '@/components/ProfileColumn'
 
 export function ComparePage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -8,6 +11,15 @@ export function ComparePage() {
 
   const [input1, setInput1] = useState(user1Param)
   const [input2, setInput2] = useState(user2Param)
+
+  const [profile1Query, repos1Query, profile2Query, repos2Query] = useQueries({
+    queries: [
+      { queryKey: ['profile', 'user1', user1Param], queryFn: () => fetchProfile(user1Param), enabled: Boolean(user1Param) },
+      { queryKey: ['repos', 'user1', user1Param], queryFn: () => fetchRepos(user1Param), enabled: Boolean(user1Param) },
+      { queryKey: ['profile', 'user2', user2Param], queryFn: () => fetchProfile(user2Param), enabled: Boolean(user2Param) },
+      { queryKey: ['repos', 'user2', user2Param], queryFn: () => fetchRepos(user2Param), enabled: Boolean(user2Param) },
+    ],
+  })
 
   function submit() {
     const trimmed1 = input1.trim()
@@ -42,7 +54,11 @@ export function ComparePage() {
           {(hasUser1 || hasUser2) && (
             <div data-testid="profile-column-1" className="mt-4">
               {hasUser1 ? (
-                <p>{user1Param}</p>
+                profile1Query.data && repos1Query.data ? (
+                  <ProfileColumn profile={profile1Query.data} repos={repos1Query.data} />
+                ) : (
+                  <p>Loading…</p>
+                )
               ) : (
                 <p>Enter a second username to compare</p>
               )}
@@ -63,7 +79,11 @@ export function ComparePage() {
           {(hasUser1 || hasUser2) && (
             <div data-testid="profile-column-2" className="mt-4">
               {hasUser2 ? (
-                <p>{user2Param}</p>
+                profile2Query.data && repos2Query.data ? (
+                  <ProfileColumn profile={profile2Query.data} repos={repos2Query.data} />
+                ) : (
+                  <p>Loading…</p>
+                )
               ) : (
                 <p>Enter a second username to compare</p>
               )}
