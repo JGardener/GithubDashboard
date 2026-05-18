@@ -67,6 +67,7 @@ describe('fetchProfile', () => {
   test('returns a shaped Profile on 200', async () => {
     mockFetch(200, {
       login: 'octocat',
+      name: 'The Octocat',
       avatar_url: 'https://avatars.githubusercontent.com/u/583231',
       bio: 'A mysterious octocat',
       followers: 100,
@@ -79,6 +80,7 @@ describe('fetchProfile', () => {
 
     expect(profile).toEqual({
       login: 'octocat',
+      name: 'The Octocat',
       avatarUrl: 'https://avatars.githubusercontent.com/u/583231',
       bio: 'A mysterious octocat',
       followers: 100,

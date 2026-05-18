@@ -80,6 +80,7 @@ test('Single param: resolved profile data appears in column 1', async () => {
   mockGitHub({
     torvalds: {
       login: 'torvalds',
+      name: 'Linus Torvalds',
       avatar_url: 'https://avatars.githubusercontent.com/u/1',
       bio: null,
       followers: 236000,
@@ -92,13 +93,14 @@ test('Single param: resolved profile data appears in column 1', async () => {
   renderAt('/compare?user1=torvalds')
 
   expect(await screen.findByText('torvalds')).toBeInTheDocument()
-  expect(await screen.findByText(/236000 followers/)).toBeInTheDocument()
+  expect(await screen.findByText(/236,000/)).toBeInTheDocument()
 })
 
 test('Both params: resolved profile data appears in both columns', async () => {
   mockGitHub({
     torvalds: {
       login: 'torvalds',
+      name: 'Linus Torvalds',
       avatar_url: 'https://avatars.githubusercontent.com/u/1',
       bio: null,
       followers: 236000,
@@ -108,6 +110,7 @@ test('Both params: resolved profile data appears in both columns', async () => {
     },
     gaearon: {
       login: 'gaearon',
+      name: 'Dan Abramov',
       avatar_url: 'https://avatars.githubusercontent.com/u/810438',
       bio: null,
       followers: 87000,

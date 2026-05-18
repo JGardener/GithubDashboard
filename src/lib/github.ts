@@ -1,5 +1,6 @@
 export type Profile = {
   login: string
+  name: string | null
   avatarUrl: string
   bio: string | null
   followers: number
@@ -47,6 +48,7 @@ async function request<T>(url: string, username: string): Promise<T> {
 
 type GithubUser = {
   login: string
+  name: string | null
   avatar_url: string
   bio: string | null
   followers: number
@@ -67,6 +69,7 @@ export async function fetchProfile(username: string): Promise<Profile> {
   const data = await request<GithubUser>(`${BASE}/users/${username}`, username)
   return {
     login: data.login,
+    name: data.name,
     avatarUrl: data.avatar_url,
     bio: data.bio,
     followers: data.followers,

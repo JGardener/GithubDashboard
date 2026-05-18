@@ -55,7 +55,11 @@ export function ComparePage() {
             <div data-testid="profile-column-1" className="mt-4">
               {hasUser1 ? (
                 profile1Query.data && repos1Query.data ? (
-                  <ProfileColumn profile={profile1Query.data} repos={repos1Query.data} />
+                  <ProfileColumn
+                    profile={profile1Query.data}
+                    repos={repos1Query.data}
+                    compareWith={profile2Query.data ?? undefined}
+                  />
                 ) : (
                   <p>Loading…</p>
                 )
@@ -80,7 +84,11 @@ export function ComparePage() {
             <div data-testid="profile-column-2" className="mt-4">
               {hasUser2 ? (
                 profile2Query.data && repos2Query.data ? (
-                  <ProfileColumn profile={profile2Query.data} repos={repos2Query.data} />
+                  <ProfileColumn
+                    profile={profile2Query.data}
+                    repos={repos2Query.data}
+                    compareWith={profile1Query.data ?? undefined}
+                  />
                 ) : (
                   <p>Loading…</p>
                 )
