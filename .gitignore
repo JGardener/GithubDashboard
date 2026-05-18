@@ -36,5 +36,8 @@ Thumbs.db
 # Vite
 *.local
 
+# TypeScript
+*.tsbuildinfo
+
 # Test coverage
 coverage/
