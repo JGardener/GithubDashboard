@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, test, expect } from 'vitest'
 import { WelcomeModal } from './WelcomeModal'
 
-const SEEN_KEY = 'gh-compare-welcome-seen'
+const SEEN_KEY = 'gh-cmp-v1'
 
 beforeEach(() => localStorage.clear())
 
