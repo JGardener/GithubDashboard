@@ -34,6 +34,8 @@ export function RateLimitBanner({ resetAt, onDismiss }: RateLimitBannerProps) {
           color: 'var(--err)',
           cursor: 'pointer',
           fontSize: '15px',
+          minHeight: '44px',
+          minWidth: '44px',
           opacity: 0.6,
           transition: 'opacity 0.15s',
           lineHeight: 1,

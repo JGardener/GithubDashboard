@@ -65,7 +65,7 @@ describe('WelcomeModal', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
-  it('closes when Escape is pressed', async () => {
+  test('closes when Escape is pressed', async () => {
     const user = userEvent.setup()
     render(<WelcomeModal />)
     // modal is open by default (localStorage not set)

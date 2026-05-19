@@ -94,7 +94,7 @@ export function ComparePage() {
               VS
             </div>
           </div>
-          <div style={{ width: '1px', height: '160px', background: 'linear-gradient(to bottom, rgba(129,140,248,0.22), transparent)', marginTop: '14px' }} />
+          <div style={{ width: '1px', height: '160px', background: 'linear-gradient(to bottom, var(--c1-b), transparent)', marginTop: '14px' }} />
         </div>
 
         <UserColumn

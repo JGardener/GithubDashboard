@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 const SEEN_KEY = 'gh-cmp-v1'
 
@@ -11,11 +11,13 @@ const OCTOCAT = (
 export function WelcomeModal() {
   const [open, setOpen] = useState(() => !localStorage.getItem(SEEN_KEY))
   const gotItRef = useRef<HTMLButtonElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
 
-  function dismiss() {
+  const dismiss = useCallback(() => {
     localStorage.setItem(SEEN_KEY, '1')
     setOpen(false)
-  }
+    requestAnimationFrame(() => triggerRef.current?.focus())
+  }, [])
 
   useEffect(() => {
     if (open) {
@@ -41,6 +43,7 @@ export function WelcomeModal() {
   return (
     <>
       <button
+        ref={triggerRef}
         onClick={() => setOpen(true)}
         aria-label="About this tool"
         style={{
