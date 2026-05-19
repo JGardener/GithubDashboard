@@ -92,8 +92,8 @@ test('Single param: resolved profile data appears in column 1', async () => {
 
   renderAt('/compare?user1=torvalds')
 
-  expect(await screen.findByText('torvalds')).toBeInTheDocument()
-  expect(await screen.findByText(/236,000/)).toBeInTheDocument()
+  expect(await screen.findByText('@torvalds')).toBeInTheDocument()
+  expect(await screen.findByText('236k')).toBeInTheDocument()
 })
 
 test('Both params: resolved profile data appears in both columns', async () => {
@@ -122,8 +122,8 @@ test('Both params: resolved profile data appears in both columns', async () => {
 
   renderAt('/compare?user1=torvalds&user2=gaearon')
 
-  expect(await screen.findByText('torvalds')).toBeInTheDocument()
-  expect(await screen.findByText('gaearon')).toBeInTheDocument()
+  expect(await screen.findByText('@torvalds')).toBeInTheDocument()
+  expect(await screen.findByText('@gaearon')).toBeInTheDocument()
 })
 
 test('Full state: both columns render repos and language distribution strip', async () => {
@@ -177,7 +177,7 @@ test('loading state: resolved column shows data while other column still shows l
 
   renderAt('/compare?user1=torvalds&user2=gaearon')
 
-  expect(await screen.findByText('torvalds')).toBeInTheDocument()
+  expect(await screen.findByText('@torvalds')).toBeInTheDocument()
   expect(screen.getByRole('status', { name: /loading/i })).toBeInTheDocument()
 })
 
@@ -187,7 +187,7 @@ test('loading state: column 1 shows loading indicator while fetch is pending', (
   renderAt('/compare?user1=torvalds')
 
   expect(screen.getByRole('status', { name: /loading/i })).toBeInTheDocument()
-  expect(screen.queryByText('torvalds')).not.toBeInTheDocument()
+  expect(screen.queryByText('@torvalds')).not.toBeInTheDocument()
 })
 
 test('error state: 404 for user1 does not affect column 2', async () => {
@@ -211,7 +211,7 @@ test('error state: 404 for user1 does not affect column 2', async () => {
   renderAt('/compare?user1=ghost&user2=torvalds')
 
   await screen.findByText(/not found/i)
-  expect(await screen.findByText('torvalds')).toBeInTheDocument()
+  expect(await screen.findByText('@torvalds')).toBeInTheDocument()
 })
 
 test('error state: 404 for user1 renders not-found error in column 1', async () => {

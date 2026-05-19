@@ -17,11 +17,11 @@ function formatDate(iso: string) {
 export function StatsSection({ profile, compareWith }: StatsSectionProps) {
   const w = compareWith
 
-  const rows: { label: string; testId: string; value: string; rawValue?: string; win: boolean }[] = [
-    { label: 'Followers',    testId: 'stat-followers-value',    value: formatNum(profile.followers),   rawValue: profile.followers.toLocaleString(),   win: isWinner(profile.followers, w?.followers) },
-    { label: 'Following',    testId: 'stat-following-value',    value: formatNum(profile.following),   rawValue: profile.following.toLocaleString(),   win: isWinner(profile.following, w?.following) },
-    { label: 'Repos',        testId: 'stat-repos-value',        value: formatNum(profile.publicRepos), rawValue: profile.publicRepos.toLocaleString(), win: isWinner(profile.publicRepos, w?.publicRepos) },
-    { label: 'Member since', testId: 'stat-member-since-value', value: formatDate(profile.createdAt),                                                  win: false },
+  const rows: { label: string; testId: string; value: string; win: boolean }[] = [
+    { label: 'Followers',    testId: 'stat-followers-value',    value: formatNum(profile.followers),   win: isWinner(profile.followers, w?.followers) },
+    { label: 'Following',    testId: 'stat-following-value',    value: formatNum(profile.following),   win: isWinner(profile.following, w?.following) },
+    { label: 'Repos',        testId: 'stat-repos-value',        value: formatNum(profile.publicRepos), win: isWinner(profile.publicRepos, w?.publicRepos) },
+    { label: 'Member since', testId: 'stat-member-since-value', value: formatDate(profile.createdAt),  win: false },
   ]
 
   return (
@@ -38,7 +38,7 @@ export function StatsSection({ profile, compareWith }: StatsSectionProps) {
         Stats
       </p>
       <dl style={{ display: 'flex', flexDirection: 'column', gap: '2px', margin: 0 }}>
-        {rows.map(({ label, testId, value, rawValue, win }) => (
+        {rows.map(({ label, testId, value, win }) => (
           <div
             key={label}
             style={{
@@ -66,11 +66,6 @@ export function StatsSection({ profile, compareWith }: StatsSectionProps) {
               }}
             >
               {value}
-              {rawValue && (
-                <span style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', border: 0 }}>
-                  {rawValue}
-                </span>
-              )}
               {win && <span style={{ fontSize: '8px', opacity: 0.7, marginLeft: '3px' }}>▲</span>}
             </dd>
           </div>
