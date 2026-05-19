@@ -36,7 +36,7 @@ export function WelcomeModal() {
         document.removeEventListener('keydown', handleKeyDown)
       }
     }
-  }, [open])
+  }, [open, dismiss])
 
   return (
     <>

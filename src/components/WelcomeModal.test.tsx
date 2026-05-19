@@ -64,4 +64,13 @@ describe('WelcomeModal', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
+
+  it('closes when Escape is pressed', async () => {
+    const user = userEvent.setup()
+    render(<WelcomeModal />)
+    // modal is open by default (localStorage not set)
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
 })
