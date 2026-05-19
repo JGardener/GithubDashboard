@@ -59,13 +59,13 @@ export function RepoCard({ repo, ownerLogin }: RepoCardProps) {
       </a>
 
       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: repo.description ? '6px' : 0 }}>
-        <span style={{ fontSize: '12px', color: 'var(--dim)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <span aria-label={`${formatNum(repo.stars)} stars`} style={{ fontSize: '12px', color: 'var(--dim)', display: 'flex', alignItems: 'center', gap: '4px' }}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
           {formatNum(repo.stars)}
         </span>
-        <span style={{ fontSize: '12px', color: 'var(--dim)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+        <span aria-label={`${formatNum(repo.forks)} forks`} style={{ fontSize: '12px', color: 'var(--dim)', display: 'flex', alignItems: 'center', gap: '4px' }}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <line x1="6" y1="3" x2="6" y2="15"/>
             <circle cx="18" cy="6" r="3"/>
