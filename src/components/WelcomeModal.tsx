@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 
 const SEEN_KEY = 'gh-cmp-v1'
 
@@ -75,7 +76,7 @@ export function WelcomeModal() {
         About
       </button>
 
-      {open && (
+      {open && createPortal(
         <div
           style={{
             position: 'fixed',
@@ -200,7 +201,8 @@ export function WelcomeModal() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )
