@@ -66,7 +66,12 @@ export function StatsSection({ profile, compareWith }: StatsSectionProps) {
               }}
             >
               {value}
-              {win && <span style={{ fontSize: '8px', opacity: 0.7, marginLeft: '3px' }}>▲</span>}
+              {win && (
+                <>
+                  <span aria-hidden="true" style={{ fontSize: '8px', opacity: 0.7, marginLeft: '3px' }}>▲</span>
+                  <span style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>higher</span>
+                </>
+              )}
             </dd>
           </div>
         ))}
