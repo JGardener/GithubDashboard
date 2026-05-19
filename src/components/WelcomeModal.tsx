@@ -92,7 +92,7 @@ export function WelcomeModal() {
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="Welcome"
+            aria-labelledby="modal-title"
             style={{
               maxWidth: '460px',
               width: '100%',
@@ -129,6 +129,7 @@ export function WelcomeModal() {
                 {OCTOCAT}
               </div>
               <h2
+                id="modal-title"
                 style={{ fontSize: '22px', fontWeight: 800, marginBottom: '6px', color: 'var(--text)' }}
               >
                 GitHub Compare
