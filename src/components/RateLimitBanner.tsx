@@ -12,8 +12,8 @@ export function RateLimitBanner({ resetAt, onDismiss }: RateLimitBannerProps) {
     <div
       role="alert"
       style={{
-        background: 'rgba(248,113,113,0.09)',
-        borderBottom: '1px solid rgba(248,113,113,0.25)',
+        background: 'var(--err-a)',
+        borderBottom: '1px solid var(--err-b)',
         color: 'var(--err)',
         display: 'flex',
         alignItems: 'center',
@@ -34,6 +34,8 @@ export function RateLimitBanner({ resetAt, onDismiss }: RateLimitBannerProps) {
           color: 'var(--err)',
           cursor: 'pointer',
           fontSize: '15px',
+          minHeight: '44px',
+          minWidth: '44px',
           opacity: 0.6,
           transition: 'opacity 0.15s',
           lineHeight: 1,

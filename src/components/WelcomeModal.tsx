@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 const SEEN_KEY = 'gh-cmp-v1'
 
@@ -10,15 +10,40 @@ const OCTOCAT = (
 
 export function WelcomeModal() {
   const [open, setOpen] = useState(() => !localStorage.getItem(SEEN_KEY))
+  const gotItRef = useRef<HTMLButtonElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
 
-  function dismiss() {
+  const dismiss = useCallback(() => {
     localStorage.setItem(SEEN_KEY, '1')
     setOpen(false)
-  }
+    requestAnimationFrame(() => triggerRef.current?.focus())
+  }, [])
+
+  useEffect(() => {
+    if (open) {
+      const raf = requestAnimationFrame(() => {
+        gotItRef.current?.focus()
+      })
+
+      function handleKeyDown(e: KeyboardEvent) {
+        if (e.key === 'Escape') {
+          dismiss()
+        }
+      }
+
+      document.addEventListener('keydown', handleKeyDown)
+
+      return () => {
+        cancelAnimationFrame(raf)
+        document.removeEventListener('keydown', handleKeyDown)
+      }
+    }
+  }, [open, dismiss])
 
   return (
     <>
       <button
+        ref={triggerRef}
         onClick={() => setOpen(true)}
         aria-label="About this tool"
         style={{
@@ -28,10 +53,11 @@ export function WelcomeModal() {
           fontFamily: 'inherit',
           fontSize: '12px',
           fontWeight: 500,
-          padding: '6px 13px',
+          padding: '10px 13px',
+          minHeight: '44px',
           borderRadius: '6px',
           cursor: 'pointer',
-          transition: 'all 0.18s',
+          transition: 'border-color 0.18s, color 0.18s, background 0.18s',
         }}
         onMouseEnter={e => {
           const el = e.currentTarget as HTMLButtonElement
@@ -58,7 +84,7 @@ export function WelcomeModal() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(5,8,15,0.82)',
+            background: 'var(--bg-glass)',
             backdropFilter: 'blur(10px)',
           }}
           onClick={(e) => { if (e.target === e.currentTarget) dismiss() }}
@@ -75,7 +101,7 @@ export function WelcomeModal() {
               border: '1px solid var(--border-2)',
               borderRadius: 'var(--r-lg)',
               boxShadow: '0 32px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(129,140,248,0.12)',
-              animation: 'modal-in 280ms cubic-bezier(0.34,1.56,0.64,1) both',
+              animation: 'modal-in 280ms cubic-bezier(0.16,1,0.3,1) both',
             }}
           >
             {/* Header section */}
@@ -103,7 +129,7 @@ export function WelcomeModal() {
                 {OCTOCAT}
               </div>
               <h2
-                style={{ fontSize: '22px', fontWeight: 800, marginBottom: '6px', background: 'linear-gradient(90deg, var(--c1), var(--c2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
+                style={{ fontSize: '22px', fontWeight: 800, marginBottom: '6px', color: 'var(--text)' }}
               >
                 GitHub Compare
               </h2>
@@ -138,7 +164,13 @@ export function WelcomeModal() {
             {/* Footer */}
             <div style={{ padding: '0 28px 24px' }}>
               <button
+                ref={gotItRef}
                 onClick={dismiss}
+                onKeyDown={e => {
+                  if (e.key === 'Tab') {
+                    e.preventDefault()
+                  }
+                }}
                 style={{
                   width: '100%',
                   padding: '12px',

@@ -89,12 +89,12 @@ export function ComparePage() {
 
         <div className="vs-divider" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '72px' }}>
           <div style={{ position: 'relative', width: '38px', height: '38px' }}>
-            <div style={{ position: 'absolute', inset: '-1.5px', borderRadius: '50%', background: 'linear-gradient(135deg, #818CF8, #34D399)', zIndex: 0 }} />
-            <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', borderRadius: '50%', background: '#101828', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--sub)' }}>
+            <div style={{ position: 'absolute', inset: '-1.5px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--c1), var(--c2))', zIndex: 0 }} />
+            <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', borderRadius: '50%', background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--sub)' }}>
               VS
             </div>
           </div>
-          <div style={{ width: '1px', height: '160px', background: 'linear-gradient(to bottom, rgba(129,140,248,0.22), transparent)', marginTop: '14px' }} />
+          <div style={{ width: '1px', height: '160px', background: 'linear-gradient(to bottom, var(--c1-b), transparent)', marginTop: '14px' }} />
         </div>
 
         <UserColumn

@@ -21,6 +21,7 @@ export function ProfileCard({ profile }: ProfileCardProps) {
         <img
           src={profile.avatarUrl}
           alt={profile.login}
+          loading="lazy"
           style={{
             width: '100%',
             height: '100%',
