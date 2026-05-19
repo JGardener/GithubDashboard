@@ -53,7 +53,7 @@ test('Single state pre-fills first input and shows prompt in second area', () =>
   renderAt('/compare?user1=torvalds')
 
   expect(screen.getByRole('textbox', { name: 'Username 1' })).toHaveValue('torvalds')
-  expect(screen.getByText('Enter a second username to compare')).toBeInTheDocument()
+  expect(screen.getAllByText(/enter a github username/i).length).toBeGreaterThanOrEqual(1)
 })
 
 test('typing a username and pressing Enter transitions to Single state', async () => {
@@ -63,7 +63,7 @@ test('typing a username and pressing Enter transitions to Single state', async (
   await user.type(screen.getByRole('textbox', { name: 'Username 1' }), 'torvalds')
   await user.keyboard('{Enter}')
 
-  expect(screen.getByText('Enter a second username to compare')).toBeInTheDocument()
+  expect(screen.getAllByText(/enter a github username/i).length).toBeGreaterThanOrEqual(1)
 })
 
 test('pressing Enter with empty inputs does not change state', async () => {

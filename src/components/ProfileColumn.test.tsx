@@ -38,12 +38,12 @@ describe('ProfileColumn', () => {
 
     expect(screen.getByRole('img', { name: /torvalds/i })).toBeInTheDocument()
     expect(screen.getByText('Linus Torvalds')).toBeInTheDocument()
-    expect(screen.getByText('torvalds')).toBeInTheDocument()
+    expect(screen.getByText('@torvalds')).toBeInTheDocument()
     expect(screen.getByText('Just a programmer')).toBeInTheDocument()
-    expect(screen.getByText(/236[,\s]?000/)).toBeInTheDocument()
-    expect(screen.getByText(/0 following/i)).toBeInTheDocument()
-    expect(screen.getByText(/8 repos/i)).toBeInTheDocument()
-    expect(screen.getByText('September 2011')).toBeInTheDocument()
+    expect(screen.getByTestId('stat-followers-value')).toHaveTextContent('236k')
+    expect(screen.getByTestId('stat-following-value')).toHaveTextContent('0')
+    expect(screen.getByTestId('stat-repos-value')).toHaveTextContent('8')
+    expect(screen.getByTestId('stat-member-since-value')).toHaveTextContent('September 2011')
   })
 
   test('higher follower count gets data-winner, lower does not', () => {
@@ -51,12 +51,10 @@ describe('ProfileColumn', () => {
       <ProfileColumn profile={baseProfile} repos={repos} compareWith={opponent} />,
     )
 
-    // torvalds has 236000 followers vs gaearon's 87000 — torvalds wins
-    expect(screen.getByText(/236[,\s]?000/i).closest('[data-winner]')).not.toBeNull()
+    expect(screen.getByTestId('stat-followers-value')).toHaveAttribute('data-winner', 'true')
 
-    // from opponent's perspective — gaearon should NOT win followers
     rerender(<ProfileColumn profile={opponent} repos={repos} compareWith={baseProfile} />)
-    expect(screen.queryByText(/87[,\s]?000/i)?.closest('[data-winner]')).toBeNull()
+    expect(screen.getByTestId('stat-followers-value')).not.toHaveAttribute('data-winner')
   })
 
   test('no data-winner attributes when compareWith is absent', () => {
@@ -68,7 +66,7 @@ describe('ProfileColumn', () => {
   test('creation date never gets data-winner even with compareWith', () => {
     render(<ProfileColumn profile={baseProfile} repos={repos} compareWith={opponent} />)
 
-    expect(screen.getByText('September 2011').closest('[data-winner]')).toBeNull()
+    expect(screen.getByTestId('stat-member-since-value')).not.toHaveAttribute('data-winner')
   })
 
   test('renders repo names from the repos list', () => {
@@ -87,9 +85,8 @@ describe('ProfileColumn', () => {
   test('repo with null description renders no description text', () => {
     render(<ProfileColumn profile={baseProfile} repos={sampleRepos} />)
 
-    // subsurface has null description — no placeholder should appear
     const subsurfaceItem = screen.getByText('subsurface').closest('li')!
-    expect(subsurfaceItem.querySelector('p')).toBeNull()
+    expect(subsurfaceItem.querySelector('[data-testid="repo-description"]')).toBeNull()
   })
 
   test('repo name links to the correct GitHub repo URL', () => {
@@ -103,8 +100,8 @@ describe('ProfileColumn', () => {
     render(<ProfileColumn profile={baseProfile} repos={sampleRepos} />)
 
     const linuxCard = screen.getByText('linux').closest('li')!
-    expect(within(linuxCard).getByText(/180[,\s]?000/)).toBeInTheDocument()
-    expect(within(linuxCard).getByText(/50[,\s]?000/)).toBeInTheDocument()
+    expect(within(linuxCard).getByText('180k')).toBeInTheDocument()
+    expect(within(linuxCard).getByText('50k')).toBeInTheDocument()
     expect(within(linuxCard).getByText('C')).toBeInTheDocument()
   })
 
