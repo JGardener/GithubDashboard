@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const SEEN_KEY = 'gh-cmp-v1'
 
@@ -10,11 +10,33 @@ const OCTOCAT = (
 
 export function WelcomeModal() {
   const [open, setOpen] = useState(() => !localStorage.getItem(SEEN_KEY))
+  const gotItRef = useRef<HTMLButtonElement>(null)
 
   function dismiss() {
     localStorage.setItem(SEEN_KEY, '1')
     setOpen(false)
   }
+
+  useEffect(() => {
+    if (open) {
+      const raf = requestAnimationFrame(() => {
+        gotItRef.current?.focus()
+      })
+
+      function handleKeyDown(e: KeyboardEvent) {
+        if (e.key === 'Escape') {
+          dismiss()
+        }
+      }
+
+      document.addEventListener('keydown', handleKeyDown)
+
+      return () => {
+        cancelAnimationFrame(raf)
+        document.removeEventListener('keydown', handleKeyDown)
+      }
+    }
+  }, [open])
 
   return (
     <>
@@ -138,7 +160,13 @@ export function WelcomeModal() {
             {/* Footer */}
             <div style={{ padding: '0 28px 24px' }}>
               <button
+                ref={gotItRef}
                 onClick={dismiss}
+                onKeyDown={e => {
+                  if (e.key === 'Tab') {
+                    e.preventDefault()
+                  }
+                }}
                 style={{
                   width: '100%',
                   padding: '12px',
