@@ -2,32 +2,37 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQueries } from '@tanstack/react-query'
 import { fetchProfile, fetchRepos, RateLimitError, NotFoundError } from '@/lib/github'
-import { ProfileColumn } from '@/components/ProfileColumn'
+import { UserColumn } from '@/components/UserColumn'
+import { Header } from '@/components/Header'
+import { RateLimitBanner } from '@/components/RateLimitBanner'
 
 export function ComparePage() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const user1Param = searchParams.get('user1') ?? ''
-  const user2Param = searchParams.get('user2') ?? ''
 
-  const [input1, setInput1] = useState(user1Param)
-  const [input2, setInput2] = useState(user2Param)
+  // Read ?a= with legacy fallback to ?user1=
+  const aParam = searchParams.get('a') ?? searchParams.get('user1') ?? ''
+  const bParam = searchParams.get('b') ?? searchParams.get('user2') ?? ''
+
+  const [input1, setInput1] = useState(aParam)
+  const [input2, setInput2] = useState(bParam)
+  const [rateBannerDismissed, setRateBannerDismissed] = useState(false)
 
   const [profile1Query, repos1Query, profile2Query, repos2Query] = useQueries({
     queries: [
-      { queryKey: ['profile', 'user1', user1Param], queryFn: () => fetchProfile(user1Param), enabled: Boolean(user1Param) },
-      { queryKey: ['repos', 'user1', user1Param], queryFn: () => fetchRepos(user1Param), enabled: Boolean(user1Param) },
-      { queryKey: ['profile', 'user2', user2Param], queryFn: () => fetchProfile(user2Param), enabled: Boolean(user2Param) },
-      { queryKey: ['repos', 'user2', user2Param], queryFn: () => fetchRepos(user2Param), enabled: Boolean(user2Param) },
+      { queryKey: ['profile', 'a', aParam], queryFn: () => fetchProfile(aParam), enabled: Boolean(aParam) },
+      { queryKey: ['repos',   'a', aParam], queryFn: () => fetchRepos(aParam),   enabled: Boolean(aParam) },
+      { queryKey: ['profile', 'b', bParam], queryFn: () => fetchProfile(bParam), enabled: Boolean(bParam) },
+      { queryKey: ['repos',   'b', bParam], queryFn: () => fetchRepos(bParam),   enabled: Boolean(bParam) },
     ],
   })
 
   function submit() {
-    const trimmed1 = input1.trim()
-    const trimmed2 = input2.trim()
-    if (!trimmed1 && !trimmed2) return
+    const t1 = input1.trim()
+    const t2 = input2.trim()
+    if (!t1 && !t2) return
     const params: Record<string, string> = {}
-    if (trimmed1) params.user1 = trimmed1
-    if (trimmed2) params.user2 = trimmed2
+    if (t1) params.a = t1
+    if (t2) params.b = t2
     setSearchParams(params)
   }
 
@@ -35,90 +40,72 @@ export function ComparePage() {
     if (e.key === 'Enter') submit()
   }
 
-  const hasUser1 = Boolean(user1Param)
-  const hasUser2 = Boolean(user2Param)
-
-  const user1NotFound = [profile1Query.error, repos1Query.error].some((e) => e instanceof NotFoundError)
-  const user2NotFound = [profile2Query.error, repos2Query.error].some((e) => e instanceof NotFoundError)
+  const user1NotFound = [profile1Query.error, repos1Query.error].some(e => e instanceof NotFoundError)
+  const user2NotFound = [profile2Query.error, repos2Query.error].some(e => e instanceof NotFoundError)
+  const user1OtherError = !user1NotFound && Boolean(aParam) && [profile1Query.error, repos1Query.error].some(Boolean)
+  const user2OtherError = !user2NotFound && Boolean(bParam) && [profile2Query.error, repos2Query.error].some(Boolean)
 
   const rateLimitError = [profile1Query, repos1Query, profile2Query, repos2Query]
-    .map((q) => q.error)
+    .map(q => q.error)
     .find((e): e is RateLimitError => e instanceof RateLimitError)
 
-  function formatResetTime(date: Date) {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  function col1State() {
+    if (!aParam) return { status: 'empty' as const }
+    if (user1NotFound) return { status: 'notFound' as const }
+    if (user1OtherError) return { status: 'error' as const }
+    if (profile1Query.data && repos1Query.data)
+      return { status: 'loaded' as const, profile: profile1Query.data, repos: repos1Query.data, compareWith: profile2Query.data ?? undefined }
+    return { status: 'loading' as const }
   }
 
+  function col2State() {
+    if (!bParam) return { status: 'empty' as const }
+    if (user2NotFound) return { status: 'notFound' as const }
+    if (user2OtherError) return { status: 'error' as const }
+    if (profile2Query.data && repos2Query.data)
+      return { status: 'loaded' as const, profile: profile2Query.data, repos: repos2Query.data, compareWith: profile1Query.data ?? undefined }
+    return { status: 'loading' as const }
+  }
+
+  const bothLoaded = col1State().status === 'loaded' && col2State().status === 'loaded'
+
   return (
-    <main data-testid="compare-page">
-      {rateLimitError && (
-        <p role="alert" className="bg-destructive/10 border-destructive border p-3 text-sm">
-          GitHub rate limit reached. Resets at {formatResetTime(rateLimitError.resetAt)}.
-        </p>
+    <div data-testid="compare-page" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Header showShare={bothLoaded} />
+
+      {rateLimitError && !rateBannerDismissed && (
+        <RateLimitBanner resetAt={rateLimitError.resetAt} onDismiss={() => setRateBannerDismissed(true)} />
       )}
-      <div className="flex flex-col gap-4 p-4 md:flex-row">
-        <div className="flex-1">
-          <input
-            type="text"
-            aria-label="Username 1"
-            value={input1}
-            onChange={(e) => setInput1(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Enter GitHub username"
-            className="w-full rounded border px-3 py-2"
-          />
-          {(hasUser1 || hasUser2) && (
-            <div data-testid="profile-column-1" className="mt-4">
-              {hasUser1 ? (
-                user1NotFound ? (
-                  <p>Username not found.</p>
-                ) : profile1Query.data && repos1Query.data ? (
-                  <ProfileColumn
-                    profile={profile1Query.data}
-                    repos={repos1Query.data}
-                    compareWith={profile2Query.data ?? undefined}
-                  />
-                ) : (
-                  <p role="status" aria-label="Loading">Loading…</p>
-                )
-              ) : (
-                <p>Enter a second username to compare</p>
-              )}
+
+      <main className="compare-grid">
+        <UserColumn
+          side="left"
+          inputValue={input1}
+          onInputChange={setInput1}
+          onKeyDown={handleKeyDown}
+          colState={col1State()}
+          data-testid="profile-column-1"
+        />
+
+        <div className="vs-divider" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '72px' }}>
+          <div style={{ position: 'relative', width: '38px', height: '38px' }}>
+            <div style={{ position: 'absolute', inset: '-1.5px', borderRadius: '50%', background: 'linear-gradient(135deg, #818CF8, #34D399)', zIndex: 0 }} />
+            <div style={{ position: 'relative', zIndex: 1, width: '100%', height: '100%', borderRadius: '50%', background: '#101828', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 800, letterSpacing: '1.5px', color: 'var(--sub)' }}>
+              VS
             </div>
-          )}
+          </div>
+          <div style={{ width: '1px', height: '160px', background: 'linear-gradient(to bottom, rgba(129,140,248,0.22), transparent)', marginTop: '14px' }} />
         </div>
 
-        <div className="flex-1">
-          <input
-            type="text"
-            aria-label="Username 2"
-            value={input2}
-            onChange={(e) => setInput2(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Enter GitHub username"
-            className="w-full rounded border px-3 py-2"
-          />
-          {(hasUser1 || hasUser2) && (
-            <div data-testid="profile-column-2" className="mt-4">
-              {hasUser2 ? (
-                user2NotFound ? (
-                  <p>Username not found.</p>
-                ) : profile2Query.data && repos2Query.data ? (
-                  <ProfileColumn
-                    profile={profile2Query.data}
-                    repos={repos2Query.data}
-                    compareWith={profile1Query.data ?? undefined}
-                  />
-                ) : (
-                  <p role="status" aria-label="Loading">Loading…</p>
-                )
-              ) : (
-                <p>Enter a second username to compare</p>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </main>
+        <UserColumn
+          side="right"
+          inputValue={input2}
+          onInputChange={setInput2}
+          onKeyDown={handleKeyDown}
+          colState={col2State()}
+          data-testid="profile-column-2"
+        />
+      </main>
+    </div>
   )
 }
