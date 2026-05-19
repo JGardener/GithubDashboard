@@ -71,7 +71,7 @@ export function UserColumn({
       {/* Content */}
       {colState.status === 'empty' && (
         <div style={{ textAlign: 'center', padding: '52px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '28px', opacity: 0.18 }}>{arrow}</span>
+          <span aria-hidden="true" style={{ fontSize: '28px', opacity: 0.18 }}>{arrow}</span>
           <p style={{ fontSize: '13px', color: 'var(--dim)', lineHeight: 1.5, margin: 0 }}>
             Enter a GitHub username above<br />to start comparing
           </p>

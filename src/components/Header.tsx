@@ -32,7 +32,7 @@ export function Header({ showShare }: HeaderProps) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        background: 'rgba(5,8,15,0.88)',
+        background: 'var(--bg-glass-b)',
         backdropFilter: 'blur(16px)',
         borderBottom: '1px solid var(--border)',
       }}

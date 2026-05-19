@@ -81,7 +81,7 @@ export function WelcomeModal() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(5,8,15,0.82)',
+            background: 'var(--bg-glass)',
             backdropFilter: 'blur(10px)',
           }}
           onClick={(e) => { if (e.target === e.currentTarget) dismiss() }}
@@ -98,7 +98,7 @@ export function WelcomeModal() {
               border: '1px solid var(--border-2)',
               borderRadius: 'var(--r-lg)',
               boxShadow: '0 32px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(129,140,248,0.12)',
-              animation: 'modal-in 280ms cubic-bezier(0.34,1.56,0.64,1) both',
+              animation: 'modal-in 280ms cubic-bezier(0.16,1,0.3,1) both',
             }}
           >
             {/* Header section */}
@@ -126,7 +126,7 @@ export function WelcomeModal() {
                 {OCTOCAT}
               </div>
               <h2
-                style={{ fontSize: '22px', fontWeight: 800, marginBottom: '6px', background: 'linear-gradient(90deg, var(--c1), var(--c2))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
+                style={{ fontSize: '22px', fontWeight: 800, marginBottom: '6px', color: 'var(--text)' }}
               >
                 GitHub Compare
               </h2>
