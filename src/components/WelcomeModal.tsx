@@ -50,10 +50,11 @@ export function WelcomeModal() {
           fontFamily: 'inherit',
           fontSize: '12px',
           fontWeight: 500,
-          padding: '6px 13px',
+          padding: '10px 13px',
+          minHeight: '44px',
           borderRadius: '6px',
           cursor: 'pointer',
-          transition: 'all 0.18s',
+          transition: 'border-color 0.18s, color 0.18s, background 0.18s',
         }}
         onMouseEnter={e => {
           const el = e.currentTarget as HTMLButtonElement
