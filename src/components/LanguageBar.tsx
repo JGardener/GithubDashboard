@@ -62,6 +62,7 @@ export function LanguageBar({ repos }: LanguageBarProps) {
               key={share.language}
               data-testid="language-segment"
               title={`${share.language} ${Math.round(share.proportion * 100)}%`}
+              aria-label={`${share.language} ${Math.round(share.proportion * 100)}%`}
               style={{
                 width: `${share.proportion * 100}%`,
                 background: color,
