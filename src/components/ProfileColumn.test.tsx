@@ -1,5 +1,6 @@
 import { render, screen, within } from '@testing-library/react'
 import { describe, test, expect } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
 import { ProfileColumn } from './ProfileColumn'
 import type { Profile, Repo } from '@/lib/github'
 
@@ -28,13 +29,17 @@ const opponent: Profile = {
 const repos: Repo[] = []
 
 const sampleRepos: Repo[] = [
-  { name: 'linux', stars: 180000, forks: 50000, language: 'C', description: 'Linux kernel' },
-  { name: 'subsurface', stars: 2000, forks: 300, language: 'C++', description: null },
+  { name: 'linux',      stars: 180000, forks: 50000, language: 'C',   description: 'Linux kernel', updatedAt: '2024-01-01T00:00:00Z' },
+  { name: 'subsurface', stars: 2000,   forks: 300,   language: 'C++', description: null,           updatedAt: '2024-01-01T00:00:00Z' },
 ]
+
+function renderInRouter(ui: React.ReactElement) {
+  return render(<MemoryRouter>{ui}</MemoryRouter>)
+}
 
 describe('ProfileColumn', () => {
   test('renders avatar, name, login, bio, all stats, and formatted creation date', () => {
-    render(<ProfileColumn profile={baseProfile} repos={repos} />)
+    renderInRouter(<ProfileColumn profile={baseProfile} repos={repos} />)
 
     expect(screen.getByRole('img', { name: /torvalds/i })).toBeInTheDocument()
     expect(screen.getByText('Linus Torvalds')).toBeInTheDocument()
@@ -47,57 +52,61 @@ describe('ProfileColumn', () => {
   })
 
   test('higher follower count gets data-winner, lower does not', () => {
-    const { rerender } = render(
+    const { rerender } = renderInRouter(
       <ProfileColumn profile={baseProfile} repos={repos} compareWith={opponent} />,
     )
 
     expect(screen.getByTestId('stat-followers-value')).toHaveAttribute('data-winner', 'true')
 
-    rerender(<ProfileColumn profile={opponent} repos={repos} compareWith={baseProfile} />)
+    rerender(
+      <MemoryRouter>
+        <ProfileColumn profile={opponent} repos={repos} compareWith={baseProfile} />
+      </MemoryRouter>,
+    )
     expect(screen.getByTestId('stat-followers-value')).not.toHaveAttribute('data-winner')
   })
 
   test('no data-winner attributes when compareWith is absent', () => {
-    render(<ProfileColumn profile={baseProfile} repos={repos} />)
+    renderInRouter(<ProfileColumn profile={baseProfile} repos={repos} />)
 
     expect(document.querySelector('[data-winner]')).toBeNull()
   })
 
   test('creation date never gets data-winner even with compareWith', () => {
-    render(<ProfileColumn profile={baseProfile} repos={repos} compareWith={opponent} />)
+    renderInRouter(<ProfileColumn profile={baseProfile} repos={repos} compareWith={opponent} />)
 
     expect(screen.getByTestId('stat-member-since-value')).not.toHaveAttribute('data-winner')
   })
 
   test('renders repo names from the repos list', () => {
-    render(<ProfileColumn profile={baseProfile} repos={sampleRepos} />)
+    renderInRouter(<ProfileColumn profile={baseProfile} repos={sampleRepos} />)
 
     expect(screen.getByText('linux')).toBeInTheDocument()
     expect(screen.getByText('subsurface')).toBeInTheDocument()
   })
 
   test('repo description is rendered when present', () => {
-    render(<ProfileColumn profile={baseProfile} repos={sampleRepos} />)
+    renderInRouter(<ProfileColumn profile={baseProfile} repos={sampleRepos} />)
 
     expect(screen.getByText('Linux kernel')).toBeInTheDocument()
   })
 
   test('repo with null description renders no description text', () => {
-    render(<ProfileColumn profile={baseProfile} repos={sampleRepos} />)
+    renderInRouter(<ProfileColumn profile={baseProfile} repos={sampleRepos} />)
 
     const subsurfaceItem = screen.getByText('subsurface').closest('li')!
     expect(subsurfaceItem.querySelector('[data-testid="repo-description"]')).toBeNull()
   })
 
   test('repo name links to the correct GitHub repo URL', () => {
-    render(<ProfileColumn profile={baseProfile} repos={sampleRepos} />)
+    renderInRouter(<ProfileColumn profile={baseProfile} repos={sampleRepos} />)
 
     const link = screen.getByRole('link', { name: 'linux' })
     expect(link).toHaveAttribute('href', 'https://github.com/torvalds/linux')
   })
 
   test('each repo card shows star count, fork count, and language', () => {
-    render(<ProfileColumn profile={baseProfile} repos={sampleRepos} />)
+    renderInRouter(<ProfileColumn profile={baseProfile} repos={sampleRepos} />)
 
     const linuxCard = screen.getByText('linux').closest('li')!
     expect(within(linuxCard).getByText('180k')).toBeInTheDocument()
@@ -107,10 +116,10 @@ describe('ProfileColumn', () => {
 
   test('language swatch labels appear below the strip', () => {
     const langRepos: Repo[] = [
-      { name: 'r1', stars: 0, forks: 0, language: 'TypeScript', description: null },
-      { name: 'r2', stars: 0, forks: 0, language: 'Rust', description: null },
+      { name: 'r1', stars: 0, forks: 0, language: 'TypeScript', description: null, updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'r2', stars: 0, forks: 0, language: 'Rust',       description: null, updatedAt: '2024-01-01T00:00:00Z' },
     ]
-    render(<ProfileColumn profile={baseProfile} repos={langRepos} />)
+    renderInRouter(<ProfileColumn profile={baseProfile} repos={langRepos} />)
 
     const legend = screen.getByTestId('language-legend')
     expect(within(legend).getByText('TypeScript')).toBeInTheDocument()
@@ -119,11 +128,11 @@ describe('ProfileColumn', () => {
 
   test('null-language repos do not produce a strip segment', () => {
     const mixedRepos: Repo[] = [
-      { name: 'r1', stars: 0, forks: 0, language: 'Go', description: null },
-      { name: 'r2', stars: 0, forks: 0, language: null, description: null },
-      { name: 'r3', stars: 0, forks: 0, language: null, description: null },
+      { name: 'r1', stars: 0, forks: 0, language: 'Go',  description: null, updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'r2', stars: 0, forks: 0, language: null,  description: null, updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'r3', stars: 0, forks: 0, language: null,  description: null, updatedAt: '2024-01-01T00:00:00Z' },
     ]
-    render(<ProfileColumn profile={baseProfile} repos={mixedRepos} />)
+    renderInRouter(<ProfileColumn profile={baseProfile} repos={mixedRepos} />)
 
     const segments = document.querySelectorAll('[data-testid="language-segment"]')
     expect(segments).toHaveLength(1)
@@ -131,11 +140,11 @@ describe('ProfileColumn', () => {
 
   test('language strip renders one segment per distinct language', () => {
     const langRepos: Repo[] = [
-      { name: 'r1', stars: 0, forks: 0, language: 'TypeScript', description: null },
-      { name: 'r2', stars: 0, forks: 0, language: 'TypeScript', description: null },
-      { name: 'r3', stars: 0, forks: 0, language: 'Rust', description: null },
+      { name: 'r1', stars: 0, forks: 0, language: 'TypeScript', description: null, updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'r2', stars: 0, forks: 0, language: 'TypeScript', description: null, updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'r3', stars: 0, forks: 0, language: 'Rust',       description: null, updatedAt: '2024-01-01T00:00:00Z' },
     ]
-    render(<ProfileColumn profile={baseProfile} repos={langRepos} />)
+    renderInRouter(<ProfileColumn profile={baseProfile} repos={langRepos} />)
 
     const segments = document.querySelectorAll('[data-testid="language-segment"]')
     expect(segments).toHaveLength(2)
@@ -143,14 +152,14 @@ describe('ProfileColumn', () => {
 
   test('shows only top 5 repos by stars when more than 5 provided', () => {
     const sixRepos: Repo[] = [
-      { name: 'repo-a', stars: 6, forks: 0, language: null, description: null },
-      { name: 'repo-b', stars: 5, forks: 0, language: null, description: null },
-      { name: 'repo-c', stars: 4, forks: 0, language: null, description: null },
-      { name: 'repo-d', stars: 3, forks: 0, language: null, description: null },
-      { name: 'repo-e', stars: 2, forks: 0, language: null, description: null },
-      { name: 'repo-f', stars: 1, forks: 0, language: null, description: null },
+      { name: 'repo-a', stars: 6, forks: 0, language: null, description: null, updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'repo-b', stars: 5, forks: 0, language: null, description: null, updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'repo-c', stars: 4, forks: 0, language: null, description: null, updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'repo-d', stars: 3, forks: 0, language: null, description: null, updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'repo-e', stars: 2, forks: 0, language: null, description: null, updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'repo-f', stars: 1, forks: 0, language: null, description: null, updatedAt: '2024-01-01T00:00:00Z' },
     ]
-    render(<ProfileColumn profile={baseProfile} repos={sixRepos} />)
+    renderInRouter(<ProfileColumn profile={baseProfile} repos={sixRepos} />)
 
     expect(screen.getByText('repo-a')).toBeInTheDocument()
     expect(screen.getByText('repo-e')).toBeInTheDocument()

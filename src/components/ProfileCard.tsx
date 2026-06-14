@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import type { Profile } from '@/lib/github'
 
 type ProfileCardProps = {
@@ -47,22 +48,39 @@ export function ProfileCard({ profile }: ProfileCardProps) {
             {profile.name}
           </p>
         )}
-        <a
-          href={`https://github.com/${profile.login}`}
-          target="_blank"
-          rel="noreferrer"
+        <Link
+          to={`/user/${profile.login}`}
           style={{
             fontFamily: 'JetBrains Mono, monospace',
-            fontSize: '12px',
+            fontSize: '11px',
             color: 'var(--col-accent)',
-            opacity: 0.85,
-            marginTop: '3px',
-            display: 'block',
+            marginTop: '5px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px',
             textDecoration: 'none',
+            padding: '2px 8px',
+            borderRadius: '999px',
+            background: 'var(--col-accent-a)',
+            border: '1px solid var(--col-accent-b)',
+            transition: 'background 150ms, border-color 150ms',
+          }}
+          onMouseEnter={e => {
+            const el = e.currentTarget as HTMLAnchorElement
+            el.style.background = 'var(--col-accent-b)'
+            el.style.borderColor = 'var(--col-accent)'
+          }}
+          onMouseLeave={e => {
+            const el = e.currentTarget as HTMLAnchorElement
+            el.style.background = 'var(--col-accent-a)'
+            el.style.borderColor = 'var(--col-accent-b)'
           }}
         >
-          <span>@{profile.login}</span>
-        </a>
+          @{profile.login}
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </Link>
         {profile.bio && (
           <p style={{
             fontSize: '12px',

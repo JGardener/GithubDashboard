@@ -30,3 +30,6 @@ A full-screen modal shown to first-time Visitors explaining what the tool does a
 
 ### Language Distribution
 The proportion of a Profile's top repos that use each language, derived by counting repos per primary language across the top 10 repos by stars. Does not require extra API calls — the `language` field on each repo response is sufficient. Top 5 repos are displayed in the UI; all 10 are used for the Language Distribution calculation. Rendered as a proportional strip — a single segmented horizontal bar coloured by language, with labelled swatches below. Repos with a `null` language are excluded from the calculation silently — no "Unknown" segment.
+
+### Profile Page
+A detailed single-Profile view at `/user/:username`. Exposes the full repo catalogue (up to 100 repos) with client-side sorting (Stars, Forks, Recently updated) and language filtering. Language Distribution is calculated from all fetched repos rather than just the top 10. Entry point from the compare view via the `@username` link on each Profile card. Includes a "Compare with..." action that re-enters the compare flow with this Profile pre-filled as the first slot.

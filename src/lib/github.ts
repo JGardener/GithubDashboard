@@ -15,6 +15,7 @@ export type Repo = {
   forks: number
   language: string | null
   description: string | null
+  updatedAt: string
 }
 
 export class RateLimitError extends Error {
@@ -63,6 +64,7 @@ type GithubRepo = {
   forks_count: number
   language: string | null
   description: string | null
+  updated_at: string
 }
 
 export async function fetchProfile(username: string): Promise<Profile> {
@@ -90,5 +92,21 @@ export async function fetchRepos(username: string): Promise<Repo[]> {
     forks: r.forks_count,
     language: r.language,
     description: r.description,
+    updatedAt: r.updated_at,
+  }))
+}
+
+export async function fetchUserRepos(username: string): Promise<Repo[]> {
+  const data = await request<GithubRepo[]>(
+    `${BASE}/users/${username}/repos?per_page=100`,
+    username,
+  )
+  return data.map((r) => ({
+    name: r.name,
+    stars: r.stargazers_count,
+    forks: r.forks_count,
+    language: r.language,
+    description: r.description,
+    updatedAt: r.updated_at,
   }))
 }

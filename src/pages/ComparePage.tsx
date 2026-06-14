@@ -9,9 +9,8 @@ import { RateLimitBanner } from '@/components/RateLimitBanner'
 export function ComparePage() {
   const [searchParams, setSearchParams] = useSearchParams()
 
-  // Read ?a= with legacy fallback to ?user1=
-  const aParam = searchParams.get('a') ?? searchParams.get('user1') ?? ''
-  const bParam = searchParams.get('b') ?? searchParams.get('user2') ?? ''
+  const aParam = searchParams.get('user1') ?? ''
+  const bParam = searchParams.get('user2') ?? ''
 
   const [input1, setInput1] = useState(aParam)
   const [input2, setInput2] = useState(bParam)
@@ -19,10 +18,10 @@ export function ComparePage() {
 
   const [profile1Query, repos1Query, profile2Query, repos2Query] = useQueries({
     queries: [
-      { queryKey: ['profile', 'a', aParam], queryFn: () => fetchProfile(aParam), enabled: Boolean(aParam) },
-      { queryKey: ['repos',   'a', aParam], queryFn: () => fetchRepos(aParam),   enabled: Boolean(aParam) },
-      { queryKey: ['profile', 'b', bParam], queryFn: () => fetchProfile(bParam), enabled: Boolean(bParam) },
-      { queryKey: ['repos',   'b', bParam], queryFn: () => fetchRepos(bParam),   enabled: Boolean(bParam) },
+      { queryKey: ['profile', 'user1', aParam], queryFn: () => fetchProfile(aParam), enabled: Boolean(aParam) },
+      { queryKey: ['repos',   'user1', aParam], queryFn: () => fetchRepos(aParam),   enabled: Boolean(aParam) },
+      { queryKey: ['profile', 'user2', bParam], queryFn: () => fetchProfile(bParam), enabled: Boolean(bParam) },
+      { queryKey: ['repos',   'user2', bParam], queryFn: () => fetchRepos(bParam),   enabled: Boolean(bParam) },
     ],
   })
 
@@ -31,8 +30,8 @@ export function ComparePage() {
     const t2 = input2.trim()
     if (!t1 && !t2) return
     const params: Record<string, string> = {}
-    if (t1) params.a = t1
-    if (t2) params.b = t2
+    if (t1) params.user1 = t1
+    if (t2) params.user2 = t2
     setSearchParams(params)
   }
 

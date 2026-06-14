@@ -21,7 +21,7 @@ The compare view has a natural in-progress state: one username entered, the seco
 
 Path params force a navigation event on each change. With two inputs, this creates awkward intermediate routes (`/compare/torvalds/`) or requires deferring the URL update until both fields are filled, which breaks the shareable-URL guarantee mid-entry.
 
-`user1`/`user2` is preferred over `a`/`b` because the layout is not guaranteed to be side-by-side (mobile views may stack vertically), so positional names like `left`/`right` are wrong and single-letter names are opaque.
+`user1`/`user2` is preferred over single-letter alternatives (`a`/`b`) because single-letter param names are opaque in shared URLs. The layout is not guaranteed to be side-by-side on all viewports, so positional names (`left`/`right`) are also wrong.
 
 ## Consequences
 

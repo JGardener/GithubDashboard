@@ -24,6 +24,7 @@ describe('fetchRepos', () => {
         forks_count: 300,
         language: 'TypeScript',
         description: 'My first repository',
+        updated_at: '2024-01-01T00:00:00Z',
       },
     ])
 
@@ -36,6 +37,7 @@ describe('fetchRepos', () => {
         forks: 300,
         language: 'TypeScript',
         description: 'My first repository',
+        updatedAt: '2024-01-01T00:00:00Z',
       },
     ])
   })
