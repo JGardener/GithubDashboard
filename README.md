@@ -1,8 +1,10 @@
 # git/compare
 
+[![CI](https://github.com/JGardener/GithubDashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/JGardener/GithubDashboard/actions/workflows/ci.yml)
+
 Compare any two GitHub users side-by-side.
 
-> **[Live demo →](https://your-deployed-url-here)** — update this link after deploying
+> **[Live demo →](https://jgardener-githubdashboard.vercel.app)**
 
 ---
 
